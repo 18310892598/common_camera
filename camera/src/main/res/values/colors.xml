@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="white">#fff</color>
+    <color name="persion_text_color">#415FFF</color>
+    <color name="color_text_7A7C8B">#7A7C8B</color>
+    <color name="textcolor_333">#333333</color>
+    <color name="app_background">#f8f8f8</color>
+    <color name="textcolor_999">#999999</color>
+</resources>
