@@ -21,7 +21,7 @@
 2. #### 添加依赖
 
    ```groovy
-   api 'com.ole.travel:camera:1.0.2'
+   api 'com.ole.travel:camera:1.0.3'
    ```
 
 3. #### manifest添加权限
@@ -43,6 +43,8 @@
 ### 使用方式
 
 1. 跳转拍照提示
+
+   ##### 注意，请先判断App是否有拍照与存储权限！！
 
    ```java
    Intent intent = new Intent(MainActivity.this, DriverInfoPictureHintActivity.class);

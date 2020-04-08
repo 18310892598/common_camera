@@ -16,10 +16,10 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 
 import com.ola.travel.camera.CameraHelper;
 import com.ola.travel.camera.utils.CameraConstant;
-import com.ola.travel.camera.utils.ThreadPoolManager;
 import com.ola.travel.camera.view.AutoFitSurfaceView;
 import com.ole.libtoast.OlaToast;
 
@@ -30,6 +30,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 /**
@@ -92,7 +102,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
     /**
      * 存储图片的线程
      */
-    private ScheduledFuture scheduledFuture;
+    private Disposable saveImgDisposable;
 
 
     //自定义回调
@@ -313,7 +323,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
      * 设置预览界面尺寸
      */
     public void setPreviewSize(int width, int height) {
-        Log.e("zz","屏幕分辨率："+width+"*"+height);
         //获取系统支持预览大小
         List<Camera.Size> localSizes = mParameters.getSupportedPreviewSizes();
         //最大分辨率
@@ -324,7 +333,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
             int cameraSizeLength = localSizes.size();
             for (int n = 0; n < cameraSizeLength; n++) {
                 Camera.Size size = localSizes.get(n);
-                Log.e("zz","预置分辨率："+size.width+"*"+size.height);
                 if (Float.valueOf(size.width) / size.height == scale) {
                     mParameters.setPreviewSize(size.width, size.height);
                     return;
@@ -368,7 +376,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
                 }
             }
         }
-        Log.e("zz","最佳分辨率："+optimalSize.width+"*"+optimalSize.height);
         return optimalSize;
     }
 
@@ -515,7 +522,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
                 degrees = 270;
                 break;
         }
-        Log.e("zz", "rotation:" + rotation);
         int result;
         //计算图像所要旋转的角度
         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -554,10 +560,9 @@ public class CameraPresenter implements Camera.PreviewCallback {
             mCamera.setPreviewCallback(null);
             mCamera.release();
             mCamera = null;
-            mHandler.removeMessages(1);
         }
-        if (scheduledFuture != null) {
-            ThreadPoolManager.getInstance().cancelSingleThread(scheduledFuture);
+        if (saveImgDisposable != null&&!saveImgDisposable.isDisposed()) {
+            saveImgDisposable.dispose();
         }
     }
 
@@ -565,7 +570,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
      * 创建拍照照片文件夹
      */
     private void setUpFile() {
-        //--todo--android 10适配
         photosFile = new File(CameraHelper.getInstance(mAppCompatActivity).getImgLocation());
         if (!photosFile.exists() || !photosFile.isDirectory()) {
             boolean isSuccess = false;
@@ -587,50 +591,55 @@ public class CameraPresenter implements Camera.PreviewCallback {
      * @return 返回路径
      */
     private void getPhotoPath(final byte[] data) {
-        scheduledFuture = ThreadPoolManager.getInstance().addDelayScheduledExecutor(new Runnable() {
-            @Override
-            public void run() {
-                long timeMillis = System.currentTimeMillis();
-                //拍照数量+1
-                photoNum++;
-                //图片名字
-                String name = ("Driver_Picture_" + timeMillis + ".jpg");
-                //创建具体文件
-                File file = new File(photosFile, name);
-                if (!file.exists()) {
-                    try {
-                        file.createNewFile();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return;
-                    }
-                }
-                try {
-                    FileOutputStream fos = new FileOutputStream(file);
-                    try {
-                        //将数据写入文件
-                        fos.write(data);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
+        saveImgDisposable= Observable.just("")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Function<String, String>() {
+                    @Override
+                    public String apply(String s) throws Throwable {
+                        long timeMillis = System.currentTimeMillis();
+                        //拍照数量+1
+                        photoNum++;
+                        //图片名字
+                        String name = ("Driver_Picture_" + timeMillis + ".jpg");
+                        //创建具体文件
+                        File file = new File(photosFile, name);
+                        if (!file.exists()) {
+                            try {
+                                file.createNewFile();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return "";
+                            }
+                        }
                         try {
-                            fos.close();
-                        } catch (IOException e) {
+                            FileOutputStream fos = new FileOutputStream(file);
+                            try {
+                                //将数据写入文件
+                                fos.write(data);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                try {
+                                    fos.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
+                        rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
+                        return file.getName();
                     }
-                    //--todo--
-                    //将图片旋转
-                    rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
-                    Message message = new Message();
-                    message.what = 1;
-                    message.obj = CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName();
-                    mHandler.sendMessage(message);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 10, TimeUnit.MILLISECONDS);
+                })
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Throwable {
+                        mCameraCallBack.getPhotoFile(CameraHelper.getInstance(mAppCompatActivity).getImgLocation()+s);
+                    }
+                });
+
     }
 
 
@@ -668,8 +677,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
                     resizedBitmap.getWidth(), resizedBitmap.getHeight(), matrix1, true);
 
         }
-
-
         File file = new File(path);
         //重新写入文件
         try {
@@ -688,20 +695,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
 
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        @SuppressLint("NewApi")
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1:
-                    mCameraCallBack.getPhotoFile(msg.obj.toString());
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
 
     /**
      * 自动变焦
