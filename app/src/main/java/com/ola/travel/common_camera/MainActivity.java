@@ -17,7 +17,6 @@ import com.ola.travel.camera.utils.CameraConstant;
 public class MainActivity extends AppCompatActivity {
     private Button mButton;
     private ImageView mImg;
-    private String imagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, DriverInfoPictureHintActivity.class);
+
                 intent.putExtra(CameraConstant.DRIVER_INFO_PICTURE_HINT_TYPE, CameraConstant.DRIVING_LICENCE_FRONT);
                 startActivityForResult(intent, CameraConstant.REQUEST_CODE_PICTURE);
             }
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CameraConstant.REQUEST_CODE_PICTURE) {
             if (data != null && data.getStringExtra(CameraConstant.RESULT_PATH_FLAG) != null) {
-                imagePath = data.getStringExtra(CameraConstant.RESULT_PATH_FLAG);
+                String imagePath = data.getStringExtra(CameraConstant.RESULT_PATH_FLAG);
                 Glide.with(this).load(imagePath).into(mImg);
             }
         }

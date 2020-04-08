@@ -15,12 +15,13 @@ import com.ola.travel.camera.CameraHelper;
  * <p>
  * Desc :
  */
-public class App  extends Application {
+public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        CameraHelper.getInstance().init( "/data/data/com.ola.travel.common_camera/pic/");
+        CameraHelper.getInstance(this).init(this.getFilesDir().getPath() + "pic/");
     }
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);

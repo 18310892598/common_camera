@@ -1,6 +1,8 @@
 package com.ola.travel.camera;
 
 
+import android.content.Context;
+
 /**
  * @author zhangzheng
  * @Date 2020/4/2 4:43 PM
@@ -13,14 +15,15 @@ public class CameraHelper {
     private static volatile CameraHelper singleton = null;
     private static String IMG_LOCATION;
 
-    private CameraHelper() {
+    private CameraHelper(Context context) {
+        IMG_LOCATION=context.getFilesDir().getPath()+"pic/";
     }
 
-    public static CameraHelper getInstance() {
+    public static CameraHelper getInstance(Context context) {
         if (singleton == null) {
             synchronized (CameraHelper.class) {
                 if (singleton == null) {
-                    singleton = new CameraHelper();
+                    singleton = new CameraHelper(context);
                 }
             }
         }

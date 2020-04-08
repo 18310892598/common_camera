@@ -566,7 +566,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
      */
     private void setUpFile() {
         //--todo--android 10适配
-        photosFile = new File(CameraHelper.getInstance().getImgLocation());
+        photosFile = new File(CameraHelper.getInstance(mAppCompatActivity).getImgLocation());
         if (!photosFile.exists() || !photosFile.isDirectory()) {
             boolean isSuccess = false;
             try {
@@ -621,10 +621,10 @@ public class CameraPresenter implements Camera.PreviewCallback {
                     }
                     //--todo--
                     //将图片旋转
-                    rotateImageView(mCameraId, orientation, CameraHelper.getInstance().getImgLocation() + file.getName());
+                    rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
                     Message message = new Message();
                     message.what = 1;
-                    message.obj = CameraHelper.getInstance().getImgLocation() + file.getName();
+                    message.obj = CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName();
                     mHandler.sendMessage(message);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
