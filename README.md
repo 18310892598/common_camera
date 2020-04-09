@@ -21,7 +21,7 @@
 2. #### 添加依赖
 
    ```groovy
-   api 'com.ole.travel:camera:1.0.3'
+   api 'com.ole.travel:camera:1.0.4'
    ```
 
 3. #### manifest添加权限

@@ -1,33 +1,18 @@
 package com.ola.travel.camera.activity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.config.PictureConfig;
-import com.luck.picture.lib.config.PictureMimeType;
-import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.tools.PictureFileUtils;
 import com.ola.travel.camera.utils.CameraConstant;
 import com.ola.travel.camera.R;
-import com.ola.travel.camera.utils.GlideEngine;
-
 import java.io.File;
-import java.util.List;
 
 /**
  * @author zhangzheng
@@ -41,7 +26,6 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
     private TextView tvHintBut, tvHintText;
     private int mPictureType = -1;
     private String mImagePath = "";
-    private PopupWindow pop;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,8 +94,9 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
         tvHintBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPop();
-
+                Intent intent = new Intent(DriverInfoPictureHintActivity.this, DriverCertificateCameraActivity.class);
+                intent.putExtra(CameraConstant.DRIVER_INFO_PICTURE_HINT_TYPE, mPictureType);
+                startActivityForResult(intent, CameraConstant.REQUEST_CODE_CAMERA);
             }
         });
     }
@@ -124,13 +109,6 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
                 case CameraConstant.REQUEST_CODE_CAMERA:
                     if (data != null) {
                         mImagePath = data.getStringExtra(CameraConstant.RESULT_IMG_PATH);
-                        disposeResultData(mImagePath);
-                    }
-                    break;
-                case PictureConfig.CHOOSE_REQUEST:
-                    List<LocalMedia> localMedia = PictureSelector.obtainMultipleResult(data);
-                    if (localMedia != null && localMedia.size() > 0) {
-                        mImagePath = localMedia.get(0).getPath();
                         disposeResultData(mImagePath);
                     }
                     break;
@@ -171,73 +149,10 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
         setResult(CameraConstant.RESULT_CODE_PATH, intent);
         finish();
     }
-    private void showPop() {
-        View bottomView = View.inflate(this, R.layout.question_layout_bottom_dialog, null);
-        TextView mAlbum = bottomView.findViewById(R.id.tv_album_item);
-        TextView mCamera = bottomView.findViewById(R.id.tv_camera_item);
-        TextView mCancel = bottomView.findViewById(R.id.tv_cancel_item);
-
-        pop = new PopupWindow(bottomView, -1, -2);
-        pop.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
-            pop.setOutsideTouchable(true);
-        }
-        pop.setFocusable(true);
-        WindowManager.LayoutParams lp = this.getWindow().getAttributes();
-        lp.alpha = 0.7f;
-        this.getWindow().setAttributes(lp);
-        pop.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                WindowManager.LayoutParams lp1 = DriverInfoPictureHintActivity.this.getWindow().getAttributes();
-                lp1.alpha = 1f;
-                DriverInfoPictureHintActivity.this.getWindow().setAttributes(lp1);
-            }
-        });
-        pop.setAnimationStyle(R.style.main_menu_photo_anim);
-        pop.showAtLocation(this.getWindow().getDecorView(), Gravity.BOTTOM, 0, 0);
-        mAlbum.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PictureSelector.create(DriverInfoPictureHintActivity.this)
-                        .openGallery(PictureMimeType.ofImage())
-                        .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
-                        .maxSelectNum(1)
-                        .isCamera(false)
-                        .selectionMode(PictureConfig.SINGLE)
-                        .forResult(PictureConfig.CHOOSE_REQUEST);
-                closePopupWindow();
-            }
-        });
-        mCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(DriverInfoPictureHintActivity.this, DriverCertificateCameraActivity.class);
-                intent.putExtra(CameraConstant.DRIVER_INFO_PICTURE_HINT_TYPE, mPictureType);
-                startActivityForResult(intent, CameraConstant.REQUEST_CODE_CAMERA);
-                closePopupWindow();
-            }
-        });
-        mCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closePopupWindow();
-            }
-        });
-    }
-
-    private void closePopupWindow() {
-        if (pop != null && pop.isShowing()) {
-            pop.dismiss();
-            pop = null;
-        }
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         deleteSingleFile(mImagePath);
-        PictureFileUtils.deleteAllCacheDirFile(this);
     }
-
 }

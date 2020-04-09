@@ -6,7 +6,7 @@
         <item name="android:windowNoTitle">true</item><!--无标题-->
         <item name="android:windowBackground">@android:color/transparent</item><!--背景透明-->
         <item name="android:backgroundDimAmount">0.7</item><!--透明度 0.0f到1.0f之间。1.0完全不透明，0.0f完全透明-->
-        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:activityOpenEnterAnimation">@anim/activity_tab_pay_open</item>
