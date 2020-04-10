@@ -6,13 +6,10 @@
         <!--证件拍照提示页面-->
         <activity
             android:name=".activity.DriverInfoPictureHintActivity"
-            android:configChanges="screenSize|keyboardHidden|orientation"
-            android:screenOrientation="landscape"
-            android:theme="@style/MyDialogActivityTheme" />
+            android:theme="@style/Transparent" />
         <activity
             android:name=".activity.DriverCertificateCameraActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:screenOrientation="landscape" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <!-- autosize-->
         <meta-data
             android:name="design_width_in_dp"

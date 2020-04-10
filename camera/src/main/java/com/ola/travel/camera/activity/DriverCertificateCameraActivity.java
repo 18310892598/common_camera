@@ -4,10 +4,12 @@ import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -18,6 +20,7 @@ import com.ola.travel.camera.bean.OlaCameraMedia;
 import com.ola.travel.camera.utils.CameraConstant;
 import com.ola.travel.camera.R;
 import com.ola.travel.camera.helper.CameraPresenter;
+import com.ola.travel.camera.utils.BottomStatusUtils;
 import com.ola.travel.camera.view.AutoFitSurfaceView;
 
 import java.io.File;
@@ -54,7 +57,7 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
     private boolean isMove = false;
     private int mPictureType = -1;
     private OlaCameraMedia media;
-
+    private LinearLayout layout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         setContentView(R.layout.activity_certificate_camera);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        layout = findViewById(R.id.layout_horizontal);
         mSurfaceView = findViewById(R.id.sf_camera);
         mIvBack = findViewById(R.id.iv_camera_back);
         mIvBut = findViewById(R.id.iv_camera_but);
@@ -74,9 +78,24 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         mCameraPresenter = new CameraPresenter(this, mSurfaceView);
         //设置后置摄像头
         mCameraPresenter.setFrontOrBack(Camera.CameraInfo.CAMERA_FACING_BACK);
+        rotateLayout();
         getIntentData();
         initView();
         initListener();
+    }
+
+    /**
+     * 旋转屏幕
+     */
+    private void rotateLayout() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels + BottomStatusUtils.getBottomStatusHeight(this);
+        layout.setLayoutParams(new LinearLayout.LayoutParams(height, width));
+        layout.setRotation(90);
+        layout.setY((height - width) / 2);
+        layout.setX((width - height) / 2);
     }
 
     @Override

@@ -1,16 +1,19 @@
 package com.ola.travel.camera.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.ola.travel.camera.bean.OlaCameraMedia;
+import com.ola.travel.camera.utils.BottomStatusUtils;
 import com.ola.travel.camera.utils.CameraConstant;
 import com.ola.travel.camera.R;
 
@@ -23,9 +26,10 @@ import java.io.File;
  * <p>
  * Desc :司机拍照提示页面
  */
-public class DriverInfoPictureHintActivity extends AppCompatActivity {
+public class DriverInfoPictureHintActivity extends Activity {
     private ImageView ivPictureHint;
     private TextView tvHintBut, tvHintText;
+    private LinearLayout layout;
     private int mPictureType = -1;
     private OlaCameraMedia media;
 
@@ -34,11 +38,27 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //设置横屏尺寸
         setContentView(R.layout.activity_recruit_picture_hint);
+        layout = findViewById(R.id.layout_horizontal);
         ivPictureHint = findViewById(R.id.iv_picture_hint);
         tvHintBut = findViewById(R.id.tv_picture_hint_but);
         tvHintText = findViewById(R.id.iv_picture_hint_text_content);
+        rotateLayout();
         getIntentData();
         initView();
+    }
+
+    /**
+     * 旋转屏幕
+     */
+    private void rotateLayout() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels - BottomStatusUtils.getBottomStatusHeight(this);
+        layout.setLayoutParams(new LinearLayout.LayoutParams(height, width));
+        layout.setRotation(90);
+        layout.setY((height - width) >> 1);
+        layout.setX((width - height) >> 1);
     }
 
 
@@ -149,7 +169,17 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.putExtra(CameraConstant.RESULT_PATH_FLAG, olaCameraMedia);
         setResult(CameraConstant.RESULT_CODE_PATH, intent);
+        activityOut();
+    }
+
+    private void activityOut() {
+//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        activityOut();
     }
 
     @Override

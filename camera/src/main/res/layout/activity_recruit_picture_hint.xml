@@ -1,70 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="510dp"
-        android:layout_height="289dp"
-        android:background="@drawable/bg_picture_hint"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <LinearLayout
+        android:id="@+id/layout_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="#00FFFFFF"
+        android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/iv_picture_hint"
-            android:layout_width="291dp"
-            android:layout_height="181dp"
-            android:layout_marginLeft="29dp"
-            android:src="@mipmap/icon_identity_card_front"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="510dp"
+            android:layout_height="289dp"
+            android:background="@drawable/bg_picture_hint"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/tv_picture_hint_but"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingRight="24dp"
-            android:gravity="left"
-            android:layout_marginLeft="13dp"
-            app:layout_constraintBottom_toTopOf="@+id/tv_picture_hint_but"
-            app:layout_constraintLeft_toRightOf="@+id/iv_picture_hint"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/iv_picture_hint_text_title"
-                android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/iv_picture_hint"
+                android:layout_width="291dp"
+                android:layout_height="181dp"
+                android:layout_marginLeft="29dp"
+                android:src="@mipmap/icon_identity_card_front"
+                app:layout_constraintBottom_toTopOf="@+id/tv_picture_hint_but"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="请按以下要求拍摄"
-                android:textColor="#353B50"
-                android:textSize="18dp" />
+                android:layout_marginLeft="13dp"
+                android:gravity="left"
+                android:orientation="vertical"
+                android:paddingRight="24dp"
+                app:layout_constraintBottom_toTopOf="@+id/tv_picture_hint_but"
+                app:layout_constraintLeft_toRightOf="@+id/iv_picture_hint"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/iv_picture_hint_text_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="请按以下要求拍摄"
+                    android:textColor="#353B50"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:id="@+id/iv_picture_hint_text_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:lineSpacingExtra="3dp"
+                    android:text="1、证件置于拍摄框内\n2、四角齐全，无遮挡\n3、照片拍摄清晰，不模糊"
+                    android:textColor="@color/color_text_7A7C8B"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/iv_picture_hint_text_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:lineSpacingExtra="3dp"
-                android:text="1、证件置于拍摄框内\n2、四角齐全，无遮挡\n3、照片拍摄清晰，不模糊"
-                android:textColor="@color/color_text_7A7C8B"
-                android:textSize="13sp" />
-        </LinearLayout>
+                android:id="@+id/tv_picture_hint_but"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/but_picture_hint"
+                android:gravity="center"
+                android:text="开始拍摄"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
-            android:id="@+id/tv_picture_hint_but"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/but_picture_hint"
-            android:gravity="center"
-            android:text="开始拍摄"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</LinearLayout>

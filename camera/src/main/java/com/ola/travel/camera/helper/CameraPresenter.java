@@ -615,7 +615,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
                             }
                             olaCameraMedia.setAndroidQToPath(fileAndroidQ.getPath());
                         } else {
-                            rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
+//                            rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
                         }
                         return olaCameraMedia;
                     }
