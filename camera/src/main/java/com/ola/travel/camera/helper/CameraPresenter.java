@@ -1,5 +1,6 @@
 package com.ola.travel.camera.helper;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -7,17 +8,17 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Environment;
-import android.util.DisplayMetrics;
+import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ola.travel.camera.CameraHelper;
 import com.ola.travel.camera.bean.OlaCameraMedia;
 import com.ola.travel.camera.utils.CameraConstant;
+import com.ola.travel.camera.utils.CameraSizesUtils;
 import com.ola.travel.camera.view.AutoFitSurfaceView;
 import com.ole.libtoast.OlaToast;
 
@@ -76,10 +77,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
      */
     private CameraCallBack mCameraCallBack;
     /**
-     * 手机宽和高
-     */
-    private int screenWidth, screenHeight;
-    /**
      * 拍照存放的文件
      */
     private File photosFile = null;
@@ -127,11 +124,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
         this.mAppCompatActivity = mAppCompatActivity;
         this.mSurfaceView = mSurfaceView;
         mSurfaceHolder = mSurfaceView.getHolder();
-        DisplayMetrics dm = new DisplayMetrics();
-        mAppCompatActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        //获取宽高像素
-        screenWidth = dm.widthPixels;
-        screenHeight = dm.heightPixels;
         //创建文件夹目录
         setUpFile();
         init();
@@ -245,14 +237,17 @@ public class CameraPresenter implements Camera.PreviewCallback {
      *
      * @param camera
      */
+    @SuppressLint("NewApi")
     private void initParameters(Camera camera) {
         try {
             //获取Parameters对象
             mParameters = camera.getParameters();
             //设置预览格式
             mParameters.setPreviewFormat(ImageFormat.NV21);
-            //mParameters.setExposureCompensation(2);
-            setPreviewSize(screenWidth, screenHeight);
+            Size biggestSize = CameraSizesUtils.getPreviewOutputSize(mSurfaceView.getDisplay(), mParameters.getSupportedPreviewSizes());
+            mParameters.setPreviewSize(biggestSize.getWidth(), biggestSize.getHeight());
+            mSurfaceView.getHolder().setFixedSize(biggestSize.getWidth(), biggestSize.getHeight());
+            mSurfaceView.setAspectRatio(biggestSize.getWidth(), biggestSize.getHeight());
             setPictureSize();
             //连续自动对焦图像
             if (isSupportFocus(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
@@ -261,7 +256,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
                 //自动对焦(单次)
                 mParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
             }
-
             //给相机设置参数
             mCamera.setParameters(mParameters);
         } catch (Exception e) {
@@ -317,66 +311,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
             mParameters.setPictureSize(fitSize.width, fitSize.height);
         }
 
-    }
-
-    /**
-     * 设置预览界面尺寸
-     */
-    public void setPreviewSize(int width, int height) {
-        //获取系统支持预览大小
-        List<Camera.Size> localSizes = mParameters.getSupportedPreviewSizes();
-        //最大分辨率
-        Camera.Size biggestSize = null;
-        Camera.Size fitSize = getOptimalSize(localSizes, width, height);
-        float scale = Float.valueOf(width) / height;
-        if (localSizes != null) {
-            int cameraSizeLength = localSizes.size();
-            for (int n = 0; n < cameraSizeLength; n++) {
-                Camera.Size size = localSizes.get(n);
-                if (Float.valueOf(size.width) / size.height == scale) {
-                    mParameters.setPreviewSize(size.width, size.height);
-                    return;
-                } else {
-                    if (biggestSize == null ||
-                            (size.width >= biggestSize.width && size.height >= biggestSize.height)) {
-                        biggestSize = size;
-                    }
-                }
-            }
-            if (biggestSize.width > width) {
-                mParameters.setPreviewSize(biggestSize.width, biggestSize.height);
-                return;
-            } else {
-                mSurfaceHolder.setFixedSize(fitSize.width, fitSize.height);
-                mSurfaceView.setAspectRatio(fitSize.width, fitSize.height);
-            }
-        }
-    }
-
-    private static Camera.Size getOptimalSize(@NonNull List<Camera.Size> sizes, int w, int h) {
-        final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) h / w;
-        Camera.Size optimalSize = null;
-        double minDiff = Double.MAX_VALUE;
-        int targetHeight = h;
-        for (Camera.Size size : sizes) {
-            double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
-            if (Math.abs(size.height - targetHeight) < minDiff) {
-                optimalSize = size;
-                minDiff = Math.abs(size.height - targetHeight);
-            }
-        }
-        if (optimalSize == null) {
-            minDiff = Double.MAX_VALUE;
-            for (Camera.Size size : sizes) {
-                if (Math.abs(size.height - targetHeight) < minDiff) {
-                    optimalSize = size;
-                    minDiff = Math.abs(size.height - targetHeight);
-                }
-            }
-        }
-        return optimalSize;
     }
 
     /**
@@ -610,7 +544,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
      * @return 返回路径
      */
     private void getPhotoPath(final byte[] data) {
-        OlaCameraMedia media=new OlaCameraMedia();
+        OlaCameraMedia media = new OlaCameraMedia();
         saveImgDisposable = Observable.just(media)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -680,7 +614,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
                                 e.printStackTrace();
                             }
                             olaCameraMedia.setAndroidQToPath(fileAndroidQ.getPath());
-                        }else{
+                        } else {
                             rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
                         }
                         return olaCameraMedia;
