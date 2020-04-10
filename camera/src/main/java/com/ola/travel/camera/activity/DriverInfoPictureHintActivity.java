@@ -10,8 +10,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.ola.travel.camera.bean.OlaCameraMedia;
 import com.ola.travel.camera.utils.CameraConstant;
 import com.ola.travel.camera.R;
+
 import java.io.File;
 
 /**
@@ -25,7 +27,7 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
     private ImageView ivPictureHint;
     private TextView tvHintBut, tvHintText;
     private int mPictureType = -1;
-    private String mImagePath = "";
+    private OlaCameraMedia media;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,8 +110,8 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
             switch (requestCode) {
                 case CameraConstant.REQUEST_CODE_CAMERA:
                     if (data != null) {
-                        mImagePath = data.getStringExtra(CameraConstant.RESULT_IMG_PATH);
-                        disposeResultData(mImagePath);
+                        media = data.getParcelableExtra(CameraConstant.RESULT_IMG_PATH);
+                        disposeResultData(media);
                     }
                     break;
                 default:
@@ -124,8 +126,8 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
         }
     }
 
-    private void disposeResultData(String mImagePath) {
-        resultImagePath(mImagePath);
+    private void disposeResultData(OlaCameraMedia olaCameraMedia) {
+        resultImagePath(olaCameraMedia);
     }
 
     /**
@@ -143,9 +145,9 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
     /**
      * 返回图片地址
      */
-    private void resultImagePath(String mImagePath) {
+    private void resultImagePath(OlaCameraMedia olaCameraMedia) {
         Intent intent = new Intent();
-        intent.putExtra(CameraConstant.RESULT_PATH_FLAG, mImagePath);
+        intent.putExtra(CameraConstant.RESULT_PATH_FLAG, olaCameraMedia);
         setResult(CameraConstant.RESULT_CODE_PATH, intent);
         finish();
     }
@@ -153,6 +155,8 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        deleteSingleFile(mImagePath);
+        if (media != null) {
+            deleteSingleFile(media.getPath());
+        }
     }
 }

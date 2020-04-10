@@ -21,7 +21,7 @@
 2. #### 添加依赖
 
    ```groovy
-   api 'com.ole.travel:camera:1.0.4'
+   api 'com.ole.travel:camera:1.0.6'
    ```
 
 3. #### manifest添加权限
@@ -44,7 +44,7 @@
 
 1. 跳转拍照提示
 
-   ##### 注意，请先判断App是否有拍照与存储权限！！
+   ##### 请先判断App是否有拍照与存储权限！！
 
    ```java
    Intent intent = new Intent(MainActivity.this, DriverInfoPictureHintActivity.class);
@@ -55,17 +55,30 @@
 
 2. 结果回调
 
+   ##### 请判断返回的OlaCameraMedia是否为空
+   
    ```java
    @Override
    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
        super.onActivityResult(requestCode, resultCode, data);
        if (requestCode == CameraConstant.REQUEST_CODE_PICTURE) {
-           if (data != null && data.getStringExtra(CameraConstant.RESULT_PATH_FLAG) != null){
-               String imagePath = data.getStringExtra(CameraConstant.RESULT_PATH_FLAG);
-               Glide.with(this).load(imagePath).into(mImg);
+           if (data != null && data.getParcelableExtra(CameraConstant.RESULT_PATH_FLAG) != null) {
+               OlaCameraMedia media= data.getParcelableExtra(CameraConstant.RESULT_PATH_FLAG);
+               Log.e("zz","收到图片原始地址："+media.getPath());
+               Log.e("zz","收到图片名称："+media.getFileName());
+               Log.e("zz","收到图片AndroidQ：地址"+media.getAndroidQToPath());
+               Glide.with(this).load(media.getPath()).into(mImg);
            }
        }
    }
+   ```
+   
+3. 返回值OlaCameraMedia说明
+
+   ```java
+   media.getPath()//获取图片原始地址
+   media.getFileName()//获取图片文件名称
+   media.getAndroidQToPath()//获取图片AndroidQ的图片地址
    ```
 
 ### 参数说明

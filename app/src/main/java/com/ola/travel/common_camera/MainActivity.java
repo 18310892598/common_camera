@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.ola.travel.camera.activity.DriverInfoPictureHintActivity;
+import com.ola.travel.camera.bean.OlaCameraMedia;
 import com.ola.travel.camera.utils.CameraConstant;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, DriverInfoPictureHintActivity.class);
-
                 intent.putExtra(CameraConstant.DRIVER_INFO_PICTURE_HINT_TYPE, CameraConstant.DRIVING_LICENCE_FRONT);
                 startActivityForResult(intent, CameraConstant.REQUEST_CODE_PICTURE);
             }
@@ -39,9 +39,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CameraConstant.REQUEST_CODE_PICTURE) {
-            if (data != null && data.getStringExtra(CameraConstant.RESULT_PATH_FLAG) != null) {
-                String imagePath = data.getStringExtra(CameraConstant.RESULT_PATH_FLAG);
-                Glide.with(this).load(imagePath).into(mImg);
+            if (data != null && data.getParcelableExtra(CameraConstant.RESULT_PATH_FLAG) != null) {
+                OlaCameraMedia media= data.getParcelableExtra(CameraConstant.RESULT_PATH_FLAG);
+                Log.e("zz","收到图片原始地址："+media.getPath());
+                Log.e("zz","收到图片名称："+media.getFileName());
+                Log.e("zz","收到图片AndroidQ：地址"+media.getAndroidQToPath());
+                Glide.with(this).load(media.getPath()).into(mImg);
             }
         }
     }

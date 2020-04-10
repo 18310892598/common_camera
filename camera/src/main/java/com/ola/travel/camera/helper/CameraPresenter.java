@@ -1,24 +1,22 @@
 package com.ola.travel.camera.helper;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.os.Handler;
-import android.os.Message;
+import android.os.Build;
+import android.os.Environment;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 
 import com.ola.travel.camera.CameraHelper;
+import com.ola.travel.camera.bean.OlaCameraMedia;
 import com.ola.travel.camera.utils.CameraConstant;
 import com.ola.travel.camera.view.AutoFitSurfaceView;
 import com.ole.libtoast.OlaToast;
@@ -28,17 +26,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableEmitter;
-import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.functions.Function;
-import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
@@ -87,13 +80,21 @@ public class CameraPresenter implements Camera.PreviewCallback {
      */
     private int screenWidth, screenHeight;
     /**
-     * 拍照数量
-     */
-    private int photoNum = 0;
-    /**
      * 拍照存放的文件
      */
     private File photosFile = null;
+    /**
+     * 拍照存放的文件
+     */
+    private File photosAndroidQFile = null;
+    /**
+     * androir 10图片路径
+     */
+    private String imgAndroidQPath = "";
+    /**
+     * 正常图片路径
+     */
+    private String imgPath = "";
     /**
      * 当前缩放具体值
      */
@@ -114,7 +115,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
         void onTakePicture(byte[] data, Camera Camera);
 
         //拍照路径返回
-        void getPhotoFile(String imagePath);
+        void getPhotoFile(OlaCameraMedia imagePath);
     }
 
     public void setCameraCallBack(CameraCallBack mCameraCallBack) {
@@ -131,7 +132,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
         //获取宽高像素
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
-        Log.d("sssd-手机宽高尺寸:", screenWidth + "*" + screenHeight);
         //创建文件夹目录
         setUpFile();
         init();
@@ -561,7 +561,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
             mCamera.release();
             mCamera = null;
         }
-        if (saveImgDisposable != null&&!saveImgDisposable.isDisposed()) {
+        if (saveImgDisposable != null && !saveImgDisposable.isDisposed()) {
             saveImgDisposable.dispose();
         }
     }
@@ -570,7 +570,26 @@ public class CameraPresenter implements Camera.PreviewCallback {
      * 创建拍照照片文件夹
      */
     private void setUpFile() {
-        photosFile = new File(CameraHelper.getInstance(mAppCompatActivity).getImgLocation());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            imgAndroidQPath = mAppCompatActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+            photosAndroidQFile = new File(imgAndroidQPath);
+            if (!photosAndroidQFile.exists() || !photosAndroidQFile.isDirectory()) {
+                boolean isSuccess = false;
+                try {
+                    isSuccess = photosAndroidQFile.mkdirs();
+                } catch (Exception e) {
+                    OlaToast.show(mAppCompatActivity, "创建存放目录失败,请检查磁盘空间", CameraConstant.TOAST_FAIL);
+                    mAppCompatActivity.finish();
+                } finally {
+                    if (!isSuccess) {
+                        OlaToast.show(mAppCompatActivity, "创建存放目录失败,请检查磁盘空间", CameraConstant.TOAST_FAIL);
+                        mAppCompatActivity.finish();
+                    }
+                }
+            }
+        }
+        imgPath = CameraHelper.getInstance(mAppCompatActivity).getImgLocation();
+        photosFile = new File(imgPath);
         if (!photosFile.exists() || !photosFile.isDirectory()) {
             boolean isSuccess = false;
             try {
@@ -591,17 +610,17 @@ public class CameraPresenter implements Camera.PreviewCallback {
      * @return 返回路径
      */
     private void getPhotoPath(final byte[] data) {
-        saveImgDisposable= Observable.just("")
+        OlaCameraMedia media=new OlaCameraMedia();
+        saveImgDisposable = Observable.just(media)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<String, String>() {
+                .map(new Function<OlaCameraMedia, OlaCameraMedia>() {
                     @Override
-                    public String apply(String s) throws Throwable {
+                    public OlaCameraMedia apply(OlaCameraMedia olaCameraMedia) throws Throwable {
                         long timeMillis = System.currentTimeMillis();
-                        //拍照数量+1
-                        photoNum++;
                         //图片名字
                         String name = ("Driver_Picture_" + timeMillis + ".jpg");
+                        olaCameraMedia.setFileName(name);
                         //创建具体文件
                         File file = new File(photosFile, name);
                         if (!file.exists()) {
@@ -609,7 +628,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
                                 file.createNewFile();
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                return "";
+                                return olaCameraMedia;
                             }
                         }
                         try {
@@ -629,14 +648,48 @@ public class CameraPresenter implements Camera.PreviewCallback {
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
-                        rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
-                        return file.getName();
+                        olaCameraMedia.setPath(file.getPath());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            //图片名字
+                            String nameAndroidQ = ("Driver_Picture_androidQ_" + timeMillis + ".jpg");
+                            //创建具体文件
+                            File fileAndroidQ = new File(photosAndroidQFile, nameAndroidQ);
+                            if (!fileAndroidQ.exists()) {
+                                try {
+                                    fileAndroidQ.createNewFile();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    return olaCameraMedia;
+                                }
+                            }
+                            try {
+                                FileOutputStream fos = new FileOutputStream(fileAndroidQ);
+                                try {
+                                    //将数据写入文件
+                                    fos.write(data);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } finally {
+                                    try {
+                                        fos.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            olaCameraMedia.setAndroidQToPath(fileAndroidQ.getPath());
+                        }else{
+                            rotateImageView(mCameraId, orientation, CameraHelper.getInstance(mAppCompatActivity).getImgLocation() + file.getName());
+                        }
+                        return olaCameraMedia;
                     }
                 })
-                .subscribe(new Consumer<String>() {
+                .subscribe(new Consumer<OlaCameraMedia>() {
                     @Override
-                    public void accept(String s) throws Throwable {
-                        mCameraCallBack.getPhotoFile(CameraHelper.getInstance(mAppCompatActivity).getImgLocation()+s);
+                    public void accept(OlaCameraMedia olaCameraMedia) throws Throwable {
+                        mCameraCallBack.getPhotoFile(olaCameraMedia);
                     }
                 });
 

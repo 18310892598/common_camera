@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.MotionEvent;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -15,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.ola.travel.camera.bean.OlaCameraMedia;
 import com.ola.travel.camera.utils.CameraConstant;
 import com.ola.travel.camera.R;
 import com.ola.travel.camera.helper.CameraPresenter;
@@ -53,7 +53,7 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
     private static final int MODE_ZOOM = 1;
     private boolean isMove = false;
     private int mPictureType = -1;
-    private String mImagePath = "";
+    private OlaCameraMedia media;
 
 
     @Override
@@ -118,7 +118,7 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         mIvBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                returnImgPath();
             }
         });
         mIvBut.setOnClickListener(new View.OnClickListener() {
@@ -136,7 +136,7 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         tvCameraCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hidePreview(mImagePath);
+                hidePreview(media != null ? media.getPath() : "");
             }
         });
     }
@@ -277,25 +277,49 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         return (float) Math.sqrt(x * x + y * y);
     }
 
+    /**
+     * 返回预览数据
+     *
+     * @param data
+     * @param camera
+     */
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
 
     }
 
+    /**
+     * 返回拍照数据
+     *
+     * @param data
+     * @param Camera
+     */
     @Override
     public void onTakePicture(byte[] data, Camera Camera) {
 
     }
 
+    /**
+     * 返回图片路径
+     *
+     * @param media
+     */
     @Override
-    public void getPhotoFile(String imagePath) {
-        showPreview(imagePath);
-        mImagePath = imagePath;
+    public void getPhotoFile(OlaCameraMedia media) {
+        if (media != null) {
+            showPreview(media.getPath());
+            this.media = media;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        returnImgPath();
     }
 
     public void returnImgPath() {
         Intent intent = new Intent();
-        intent.putExtra(CameraConstant.RESULT_IMG_PATH, mImagePath);
+        intent.putExtra(CameraConstant.RESULT_IMG_PATH, media);
         setResult(RESULT_OK, intent);
         finish();
     }
