@@ -121,6 +121,12 @@ public class DriverInfoPictureHintActivity extends Activity {
                 startActivityForResult(intent, CameraConstant.REQUEST_CODE_CAMERA);
             }
         });
+        layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activityFinish();
+            }
+        });
     }
 
     @Override
@@ -169,17 +175,17 @@ public class DriverInfoPictureHintActivity extends Activity {
         Intent intent = new Intent();
         intent.putExtra(CameraConstant.RESULT_PATH_FLAG, olaCameraMedia);
         setResult(CameraConstant.RESULT_CODE_PATH, intent);
-        activityOut();
+        activityFinish();
     }
 
-    private void activityOut() {
-//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    private void activityFinish() {
         finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     @Override
     public void onBackPressed() {
-        activityOut();
+        activityFinish();
     }
 
     @Override
