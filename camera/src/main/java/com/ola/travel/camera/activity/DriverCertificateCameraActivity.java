@@ -91,7 +91,7 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = displayMetrics.widthPixels;
-        int height = displayMetrics.heightPixels + BottomStatusUtils.getBottomStatusHeight(this);
+        int height = BottomStatusUtils.getDpi(this);
         layout.setLayoutParams(new LinearLayout.LayoutParams(height, width));
         layout.setRotation(90);
         layout.setY((height - width) / 2);

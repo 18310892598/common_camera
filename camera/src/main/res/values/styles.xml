@@ -1,11 +1,11 @@
 <resources>
-    <style name="Transparent" >
+    <style name="Transparent" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item><!--无标题-->
-        <item name="android:windowEnterAnimation">@anim/picture_anim_fade_in</item>
-        <item name="android:windowExitAnimation">@anim/picture_anim_fade_out</item>
+        <item name="android:windowEnterAnimation">@anim/fade_in</item>
+        <item name="android:windowExitAnimation">@anim/fade_out</item>
         <item name="android:windowAnimationStyle">@style/Picture.Theme.Translucent</item>
     </style>
 </resources>

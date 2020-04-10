@@ -1,6 +1,4 @@
 package com.ola.travel.camera.activity;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -10,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.ola.travel.camera.bean.OlaCameraMedia;
@@ -26,7 +25,7 @@ import java.io.File;
  * <p>
  * Desc :司机拍照提示页面
  */
-public class DriverInfoPictureHintActivity extends Activity {
+public class DriverInfoPictureHintActivity extends AppCompatActivity {
     private ImageView ivPictureHint;
     private TextView tvHintBut, tvHintText;
     private LinearLayout layout;

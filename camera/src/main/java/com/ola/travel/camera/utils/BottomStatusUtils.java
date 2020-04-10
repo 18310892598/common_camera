@@ -29,7 +29,7 @@ public class BottomStatusUtils {
      */
     public static int getBottomStatusHeight(Context context) {
         initDeviceInfo();
-        if (checkNavigation(context)) {
+        if (!checkNavigation(context)) {
             int totalHeight = getDpi(context);
             int contentHeight = getScreenHeight(context);
             return totalHeight - contentHeight;
