@@ -54,6 +54,7 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = displayMetrics.widthPixels;
         int height = displayMetrics.heightPixels - BottomStatusUtils.getBottomStatusHeight(this);
+        getWindow().setLayout(width,height);
         layout.setLayoutParams(new LinearLayout.LayoutParams(height, width));
         layout.setRotation(90);
         layout.setY((height - width) >> 1);
