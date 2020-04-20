@@ -1,4 +1,5 @@
 package com.ola.travel.camera.activity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -54,7 +55,8 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int width = displayMetrics.widthPixels;
         int height = displayMetrics.heightPixels - BottomStatusUtils.getBottomStatusHeight(this);
-        getWindow().setLayout(width,height);
+        int h2 = BottomStatusUtils.getDpi(this);
+        getWindow().setLayout(width, h2);
         layout.setLayoutParams(new LinearLayout.LayoutParams(height, width));
         layout.setRotation(90);
         layout.setY((height - width) >> 1);
