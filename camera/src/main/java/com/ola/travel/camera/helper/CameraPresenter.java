@@ -102,7 +102,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
      */
     private Disposable saveImgDisposable;
 
-
+    private boolean safeToTakePicture = false;
     //自定义回调
     public interface CameraCallBack {
         //预览帧回调
@@ -162,12 +162,13 @@ public class CameraPresenter implements Camera.PreviewCallback {
                 @Override
                 public void onPictureTaken(byte[] data, Camera camera) {
                     //拍照后记得调用预览方法，不然会停在拍照图像的界面
-                    mCamera.startPreview();
                     //回调
-                    mCameraCallBack.onTakePicture(data, camera);
+                    if(safeToTakePicture){
+                        mCameraCallBack.onTakePicture(data, camera);
+                        safeToTakePicture = false;
+                    }
                     //保存图片
                     getPhotoPath(data);
-
                 }
             });
 
@@ -420,6 +421,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
             //调整预览角度
             setCameraDisplayOrientation(mAppCompatActivity, mCameraId, mCamera);
             mCamera.startPreview();
+            safeToTakePicture = true;
         } catch (IOException e) {
             e.printStackTrace();
         }

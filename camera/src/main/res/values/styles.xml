@@ -1,8 +1,9 @@
 <resources>
+
     <style name="Transparent" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">true</item><!--是否浮现在activity之上-->
-        <item name="android:windowIsTranslucent">true</item><!--半透明-->
+        <item name="android:windowIsTranslucent">false</item><!--半透明 对于8.0的系统不能使用透明样式！！！-->
         <item name="windowNoTitle">true</item><!--注意：name没有android命名空间，不要加上，否则无效-->
         <item name="android:windowBackground">@color/transparent</item><!--背景透明-->
         <item name="android:windowAnimationStyle">@style/Picture.Theme.Translucent</item>

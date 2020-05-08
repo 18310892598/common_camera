@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.ola.travel.camera.bean.OlaCameraMedia;
+import com.ola.travel.camera.utils.AntiShakeUtils;
 import com.ola.travel.camera.utils.CameraConstant;
 import com.ola.travel.camera.R;
 import com.ola.travel.camera.helper.CameraPresenter;
@@ -143,7 +144,9 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         mIvBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCameraPresenter.takePicture();
+                if (!AntiShakeUtils.isInvalidClick(v, 2000)) {
+                    mCameraPresenter.takePicture();
+                }
             }
         });
         tvCameraOk.setOnClickListener(new View.OnClickListener() {
@@ -168,8 +171,8 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
             mSurfaceView.setVisibility(View.GONE);
             mIvBut.setVisibility(View.GONE);
             mIvBack.setVisibility(View.GONE);
-            ObjectAnimator.ofFloat(tvCameraOk, "translationY", 0, -200).setDuration(300).start();
-            ObjectAnimator.ofFloat(tvCameraCancel, "translationY", 0, 200).setDuration(300).start();
+            ObjectAnimator.ofFloat(tvCameraOk, "translationY", 0, -200).setDuration(180).start();
+            ObjectAnimator.ofFloat(tvCameraCancel, "translationY", 0, 200).setDuration(180).start();
             tvCameraOk.setVisibility(View.VISIBLE);
             tvCameraCancel.setVisibility(View.VISIBLE);
         }
