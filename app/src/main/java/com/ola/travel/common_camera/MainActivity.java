@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, DriverInfoPictureHintActivity.class);
                 intent.putExtra(CameraConstant.DRIVER_INFO_PICTURE_HINT_TYPE, CameraConstant.DRIVING_LICENCE_FRONT);
                 startActivityForResult(intent, CameraConstant.REQUEST_CODE_PICTURE);
+                overridePendingTransition(com.ola.travel.camera.R.anim.fade_in, com.ola.travel.camera.R.anim.fade_out);
             }
         });
     }

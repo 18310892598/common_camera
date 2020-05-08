@@ -158,7 +158,8 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         tvCameraCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hidePreview(media != null ? media.getPath() : "");
+                hidePreview(media != null ? media.getPath() : "",media != null ? media.getAndroidQToPath() : "");
+                media.cleanData();
             }
         });
     }
@@ -178,7 +179,7 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         }
     }
 
-    private void hidePreview(String imagePath) {
+    private void hidePreview(String imagePath,String imgAndroidQToPath) {
         if (ivPreview.getVisibility() == View.VISIBLE) {
             ivPreview.setVisibility(View.GONE);
             mSurfaceView.setVisibility(View.VISIBLE);
@@ -189,6 +190,8 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
         }
         if (imagePath != null && !imagePath.isEmpty()) {
             deleteSingleFile(imagePath);
+        }   if (imgAndroidQToPath != null && !imgAndroidQToPath.isEmpty()) {
+            deleteSingleFile(imgAndroidQToPath);
         }
     }
 
@@ -340,9 +343,11 @@ public class DriverCertificateCameraActivity extends AppCompatActivity implement
     }
 
     public void returnImgPath() {
-        Intent intent = new Intent();
-        intent.putExtra(CameraConstant.RESULT_IMG_PATH, media);
-        setResult(RESULT_OK, intent);
+        if(media!=null&&media.getFileName()!=null&&!media.getFileName().isEmpty()){
+            Intent intent = new Intent();
+            intent.putExtra(CameraConstant.RESULT_IMG_PATH, media);
+            setResult(RESULT_OK, intent);
+        }
         finish();
     }
 }

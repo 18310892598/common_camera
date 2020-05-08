@@ -1,6 +1,7 @@
 package com.ola.travel.camera.activity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -36,6 +37,11 @@ public class DriverInfoPictureHintActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+            setTheme(R.style.Transparent);
+        } else {
+            setTheme(R.style.NoTransparent);
+        }
         //设置横屏尺寸
         setContentView(R.layout.activity_recruit_picture_hint);
         layout = findViewById(R.id.layout_horizontal);

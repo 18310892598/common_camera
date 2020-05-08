@@ -161,7 +161,6 @@ public class CameraPresenter implements Camera.PreviewCallback {
                 //回调图片数据 点击拍照后相机返回的照片byte数组，照片数据
                 @Override
                 public void onPictureTaken(byte[] data, Camera camera) {
-                    //拍照后记得调用预览方法，不然会停在拍照图像的界面
                     //回调
                     if(safeToTakePicture){
                         mCameraCallBack.onTakePicture(data, camera);

@@ -8,4 +8,10 @@
         <item name="android:windowBackground">@color/transparent</item><!--背景透明-->
         <item name="android:windowAnimationStyle">@style/Picture.Theme.Translucent</item>
     </style>
+    <style name="NoTransparent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowFrame">@null</item>
+        <item name="windowNoTitle">true</item><!--注意：name没有android命名空间，不要加上，否则无效-->
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
 </resources>

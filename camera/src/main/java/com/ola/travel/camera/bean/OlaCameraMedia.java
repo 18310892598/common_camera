@@ -21,12 +21,17 @@ public class OlaCameraMedia implements Parcelable {
      */
     private String androidQToPath;
     /**
-    /**
+     * /**
      * file name
      */
     private String fileName;
 
     public OlaCameraMedia() {
+    }
+
+    public void cleanData() {
+        fileName = "";
+        androidQToPath = "";
     }
 
     public OlaCameraMedia(String path, String androidQToPath, String fileName) {
