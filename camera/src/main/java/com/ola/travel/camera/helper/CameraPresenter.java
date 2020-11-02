@@ -103,6 +103,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
     private Disposable saveImgDisposable;
 
     private boolean safeToTakePicture = false;
+
     //自定义回调
     public interface CameraCallBack {
         //预览帧回调
@@ -162,7 +163,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
                 @Override
                 public void onPictureTaken(byte[] data, Camera camera) {
                     //回调
-                    if(safeToTakePicture){
+                    if (safeToTakePicture) {
                         mCameraCallBack.onTakePicture(data, camera);
                         safeToTakePicture = false;
                     }
@@ -412,6 +413,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
 
     /**
      * 开始预览
+     * 添加空指针拦截 出现这种问题可能是全线造成的，也可能是摄像头被其他设备占用了
      */
     private void startPreview() {
         try {
@@ -421,7 +423,7 @@ public class CameraPresenter implements Camera.PreviewCallback {
             setCameraDisplayOrientation(mAppCompatActivity, mCameraId, mCamera);
             mCamera.startPreview();
             safeToTakePicture = true;
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
         }
     }
